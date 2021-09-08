@@ -1,7 +1,7 @@
 # made by peanut
 # created on 7th sep 2021
 
-from tkinter import Label, Button, Entry, Tk, PhotoImage, CENTER, LEFT, END
+from tkinter import Label, Button, Entry, Tk, PhotoImage, CENTER, LEFT, END, StringVar, OptionMenu, FLAT
 from tkinter import filedialog as fd
 from tkinter import messagebox as msg
 import tkinter.ttk as ttk
@@ -10,10 +10,14 @@ import os
 import requests
 import urllib.request
 import urllib
+import webbrowser
 
 global cwd
 cwd = os.getenv('APPDATA') + "\.minecraft\mods"
-versionstring = "v1.0 (08.09.2021)"
+versionstring = "v1.1 (08.09.2021)"
+
+def callback(url):
+    webbrowser.open_new(url)
 
 def connect(host='http://google.com'):
     try:
@@ -25,6 +29,7 @@ def connect(host='http://google.com'):
 print('connected' if connect() else 'no internet!')
 
 def main():
+    # check for internet connection, if no: exit program
     if(connect()):
         window()
     else:
@@ -39,13 +44,6 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 def window():
-
-    # setup variables
-
-    url = 'https://raw.githubusercontent.com/zPeanut/Resources/master/semversion-hydrogen'
-    page = requests.get(url)
-    version = (page.text).strip()
-
     # setup window
 
     window = Tk()
@@ -68,16 +66,51 @@ def window():
 
     title = Label(window, text="Hydrogen Client", font="Arial 18 bold")
     subtitle = Label(window, text="for Minecraft 1.8.9", justify=CENTER, font="Arial 11 bold")
-    desc1 = "This application will install Hydrogen v%s into your mods\nfolder located inside your Minecraft folder.\n" % version
+    desc1 = "This application will install Hydrogen into your mods\nfolder located inside your Minecraft folder.\n"
     description = Label(window, text=desc1, justify=LEFT, font="Arial 10")
     folder_string = Label(window, text="Directory:", font="Arial 10")
+    versionchoose_string = Label(window, text="Version:", font="Arial 10")
     version_string = Label(window, text=versionstring, foreground="gray", font="Arial 8")
+    githubview = Label(window, text="view on GitHub", fg = "blue", cursor = "hand2")
+    githubview.bind("<Button-1>", lambda e: callback("https://github.com/zPeanut/Hydrogen/releases/tag/%s" % dropdown.get()))
 
     # buttons
 
     btn_install = ttk.Button(window, text="Install", width=20, command=downloadfile)
     btn_path = ttk.Button(window, text="...", width=2, command=directoryopen)
     btn_cancel = ttk.Button(window, text="Cancel", width=20, command=close)
+
+    # dropdown
+
+    VERSIONS = [
+        "1.9.1",
+        "1.9",
+        "1.8.3",
+        "1.8.2",
+        "1.8.1",
+        "1.8",
+        "1.7",
+        "1.6.3",
+        "1.6.2",
+        "1.6.1",
+        "1.6",
+        "1.5",
+        "1.4.2",
+        "1.4.1",
+        "1.4",
+        "1.3",
+        "1.2",
+        "1.1",
+        "1.0",
+    ]
+
+    variable = StringVar(window)
+    variable.set(VERSIONS[0])
+
+    global dropdown
+    dropdown = ttk.Combobox(window, values = VERSIONS, width = 7)
+    dropdown.configure(state = "readonly")
+    dropdown.current(0)
 
     # setup directory entry
 
@@ -92,24 +125,34 @@ def window():
     title.place(x=102, y=10)
     subtitle.place(x=130, y=42)
     description.place(x=20, y=70)
-    directory.place(x=84, y=122)
-    folder_string.place(x=20, y=120)
-    btn_path.place(x=355, y=119)
+
+    directory.place(x=84, y=112)
+    folder_string.place(x=20, y=110)
+    btn_path.place(x=355, y=109)
+
+    dropdown.place(x = 84, y = 134)
+    versionchoose_string.place(x = 20, y = 133)
+    githubview.place(x = 150, y = 134)
+
     btn_install.place(x=20, y=160)
     btn_cancel.place(x=248, y=160)
 
     window.mainloop()
 
 def downloadfile():
-
     # download hydrogen jar
-    url = 'https://raw.githubusercontent.com/zPeanut/Resources/master/semversion-hydrogen'
-    page = requests.get(url)
-    version = (page.text).strip()
 
-    download(("https://github.com/zPeanut/Hydrogen/releases/download/%s/hydrogen-%s.jar" % (version, version)), dest_folder=cwd)
+    version = dropdown.get()
+
+    if(version == "1.0" or version == "1.1"):
+        download(("https://github.com/zPeanut/Hydrogen/releases/download/%s/phosphor-%s.jar" % (version, version)), dest_folder=cwd)
+    else:
+        download(("https://github.com/zPeanut/Hydrogen/releases/download/%s/hydrogen-%s.jar" % (version, version)), dest_folder=cwd)
+
 
 def download(url: str, dest_folder: str):
+    # get hydrogen jar from web
+
     if not os.path.exists(dest_folder):
         os.makedirs(dest_folder)  # create folder if it does not exist
 
@@ -128,12 +171,14 @@ def download(url: str, dest_folder: str):
                         os.fsync(f.fileno())
             success()
         else:  # HTTP status code 4XX/5XX
-            print("Download failed: status code {}\n{}".format(r.status_code, r.text))
+            global errormessage
+            errormessage = ("Download failed: status code {}\n{}".format(r.status_code, r.text))
+            print(errormessage)
+            error()
     else:
         duplicate()
 
 def directoryopen():
-
     # open directory window
 
     dir_name = fd.askdirectory()
@@ -144,7 +189,6 @@ def directoryopen():
 
 def success():
     msg.showinfo("Hydrogen Installer", "Successfully Installed!")
-    exit()
 
 def duplicate():
     msg.showerror("Hydrogen Installer", "Hydrogen is already installed!")
@@ -153,6 +197,10 @@ def nointernet():
     root = Tk()
     root.withdraw()
     msg.showerror("Hydrogen Installer", "Could not connect to the Internet!")
+
+def error():
+    global errormessage
+    msg.showerror("Hydrogen Installer", errormessage)
 
 def close():
     exit()
