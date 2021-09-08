@@ -51,7 +51,7 @@ def window():
     window = Tk()
     window.resizable(False, False)
     window.title("Hydrogen Installer")
-    img = PhotoImage(file=resource_path('C:\python\schule\hydrogen2.png'))
+    img = PhotoImage(file=resource_path('C:\python\schule\\resources\hydrogen2.png'))
     window.tk.call('wm', 'iconphoto', window._w, img)
 
     # centre window and set size
