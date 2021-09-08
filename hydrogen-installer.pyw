@@ -13,7 +13,7 @@ import urllib
 
 global cwd
 cwd = os.getenv('APPDATA') + "\.minecraft\mods"
-versionstring = "v1.1 (08.09.2021)"
+versionstring = "v1.0 (08.09.2021)"
 
 def connect(host='http://google.com'):
     try:
