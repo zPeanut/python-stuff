@@ -1,7 +1,7 @@
 # made by peanut
 # created on 7th sep 2021
 
-from tkinter import *
+from tkinter import Label, Button, Entry, Tk, PhotoImage, CENTER, LEFT, END
 from tkinter import filedialog as fd
 from tkinter import messagebox as msg
 import tkinter.ttk as ttk
@@ -13,7 +13,7 @@ import urllib
 
 global cwd
 cwd = os.getenv('APPDATA') + "\.minecraft\mods"
-versionstring = "v1.0 (08.09.2021)"
+versionstring = "v1.1 (08.09.2021)"
 
 def connect(host='http://google.com'):
     try:
