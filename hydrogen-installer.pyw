@@ -1,7 +1,7 @@
 # made by peanut
 # created on 7th sep 2021
 
-from tkinter import Label, Button, Entry, Tk, PhotoImage, CENTER, LEFT, END, StringVar, OptionMenu, FLAT
+from tkinter import Label, Button, Entry, Tk, PhotoImage, CENTER, LEFT, END, StringVar
 from tkinter import filedialog as fd
 from tkinter import messagebox as msg
 import tkinter.ttk as ttk
@@ -35,22 +35,12 @@ def main():
     else:
         nointernet()
 
-def resource_path(relative_path):
-    try:
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
-
 def window():
     # setup window
 
     window = Tk()
     window.resizable(False, False)
     window.title("Hydrogen Installer")
-    img = PhotoImage(file=resource_path('C:\python\schule\\resources\hydrogen2.png'))
-    window.tk.call('wm', 'iconphoto', window._w, img)
 
     # centre window and set size
 
