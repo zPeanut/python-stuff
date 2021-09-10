@@ -14,7 +14,7 @@ import webbrowser
 
 global cwd
 cwd = os.getenv('APPDATA') + "\.minecraft\mods"
-versionstring = "v1.1 (08.09.2021)"
+versionstring = "v1.2 (09.09.2021)"
 
 def callback(url):
     webbrowser.open_new(url)
@@ -30,7 +30,7 @@ print('connected' if connect() else 'no internet!')
 
 def main():
     # check for internet connection, if no: exit program
-    if(connect()):
+    if (connect()):
         window()
     else:
         nointernet()
@@ -73,29 +73,19 @@ def window():
     # dropdown
 
     VERSIONS = [
-        "1.9.1",
-        "1.9",
-        "1.8.3",
-        "1.8.2",
-        "1.8.1",
-        "1.8",
-        "1.7",
-        "1.6.3",
-        "1.6.2",
-        "1.6.1",
-        "1.6",
-        "1.5",
-        "1.4.2",
-        "1.4.1",
-        "1.4",
-        "1.3",
-        "1.2",
-        "1.1",
-        "1.0",
     ]
 
+    url = "https://raw.githubusercontent.com/zPeanut/Resources/master/versions-hydrogen"
+    page = requests.get(url)
+    version = (page.text).strip()
+
+    splitstr = version.split("\n")
+
+    for i in splitstr:
+        VERSIONS.append(i)
+
     variable = StringVar(window)
-    variable.set(VERSIONS[0])
+    variable.set(VERSIONS[1])
 
     global dropdown
     dropdown = ttk.Combobox(window, values = VERSIONS, width = 7)
