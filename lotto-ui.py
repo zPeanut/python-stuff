@@ -110,6 +110,7 @@ def main():
                         kontostand += 100 * einsatz
                         y = kontostand - kontostand_before_gewinn
                         msg.showinfo("Lotto UI", "JACKPOT!\n\n%d -> %d | Du hast %d Münzen gewonnen!\n\nDie Zahlen waren:\n%s\n\nDeine Zahlen waren:\n%s" % (kontostand_before_gewinn, kontostand, y, userzahlen, zahlen))
+                        print("Kontostand:", kontostand)
                         top.destroy()
 
                     # kleiner gewinn
@@ -118,6 +119,7 @@ def main():
                         kontostand += 20 * einsatz
                         y = kontostand - kontostand_before_gewinn
                         msg.showinfo("Lotto UI","KLEINER GEWINN!\n\n%d -> %d | Du hast %d Münzen gewonnen!\n\nDie Zahlen waren:\n%s\n\nDeine Zahlen waren:\n%s" % (kontostand_before_gewinn, kontostand, y, userzahlen, zahlen))
+                        print("Kontostand:", kontostand)
                         top.destroy()
 
                     # großer gewinn
@@ -126,6 +128,7 @@ def main():
                         kontostand += 50 * einsatz
                         y = kontostand - kontostand_before_gewinn
                         msg.showinfo("Lotto UI", "GROßER GEWINN!\n\n%d -> %d | Du hast %d Münzen gewonnen!\n\nDie Zahlen waren:\n%s\n\nDeine Zahlen waren:\n%s" % (kontostand_before_gewinn, kontostand, y, userzahlen, zahlen))
+                        print("Kontostand:", kontostand)
                         top.destroy()
 
                     # alles andere
@@ -134,7 +137,9 @@ def main():
                         kontostand -= 20 * einsatz
                         y = kontostand - kontostand_before_loss
                         msg.showinfo("Lotto UI", "VERLOREN!\n\n%d -> %d | Du hast %d Münzen verloren!\n\nDie Zahlen waren:\n%s\n\nDeine Zahlen waren:\n%s" % (kontostand_before_loss, kontostand, y, userzahlen, zahlen))
+                        print("Kontostand:", kontostand)
                         top.destroy()
+
                         # loss
                     if (kontostand < 0):
                         lose()
@@ -165,9 +170,15 @@ def main():
         def buttonclick_kontocharge():
             global kontostand
             if (eingabe.get() == "86"):
-                inputeingabe = int(input("Kontostand -> "))
-                kontostand = int(inputeingabe)
-                msg.showinfo("Lotto UI", "Es wurden %d Münzen auf dein Konto zugewiesen.\n\nDein Kontostand beträgt nun: %d Münzen." % (inputeingabe, kontostand), parent=top)
+                try:
+                    inputeingabe = int(input("Kontostand -> "))
+                    kontostand = int(inputeingabe)
+                    print("Kontostand:", kontostand)
+                    msg.showinfo("Lotto UI", "Es wurden %d Münzen auf dein Konto zugewiesen.\n\nDein Kontostand beträgt nun: %d Münzen." % (inputeingabe, kontostand), parent=top)
+                except ValueError:
+                    print("Keine gültige Nummer!")
+                except RuntimeError:
+                    print("Runtime Error!")
             elif (int(eingabe.get()) > 50):
                 msg.showerror("Lotto UI", "Zu viele Münzen auf einmal!", parent = top)
             elif (int(eingabe.get()) <= 50):
