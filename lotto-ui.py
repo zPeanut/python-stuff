@@ -2,16 +2,26 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox as msg
 import random as r
+import threading
+print()
+print("--- DEBUG CONSOLE ---")
+global kontostand
+global einsatz
+kontostand = 0
+einsatz = 0
 
 def main():
-
     global kontostand
-    kontostand = 0
     global einsatz
-    einsatz = 0
+
     window = tk.Tk()
     window.resizable(False, False)
     window.title("Lotto UI")
+
+    def change_kontostand_debug():
+        global kontostand
+        kontostand = int(input("> "))
+        window.after(100, change_kontostand_debug)
 
     # centre window and set size
 
@@ -154,11 +164,16 @@ def main():
 
         def buttonclick_kontocharge():
             global kontostand
-            if (int(eingabe.get()) > 50):
+            if (eingabe.get() == "86"):
+                inputeingabe = int(input("Kontostand -> "))
+                kontostand = int(inputeingabe)
+                msg.showinfo("Lotto UI", "Es wurden %d Münzen auf dein Konto zugewiesen.\n\nDein Kontostand beträgt nun: %d Münzen." % (inputeingabe, kontostand), parent=top)
+            elif (int(eingabe.get()) > 50):
                 msg.showerror("Lotto UI", "Zu viele Münzen auf einmal!", parent = top)
             elif (int(eingabe.get()) <= 50):
                 kontostand += int(eingabe.get())
                 msg.showinfo("Lotto UI", "Es wurden %d Münzen auf dein Konto zugewiesen.\n\nDein Kontostand beträgt nun: %d Münzen." % (int(eingabe.get()), kontostand), parent = top)
+                print("Kontostand:", kontostand)
             else:
                 # this shouldnt happen
                 msg.showerror("Lotto UI", "Ungültiger Wert!")
@@ -213,6 +228,7 @@ def main():
     btn_kontostand.place(relx=0.5, rely=0.5, anchor=tk.CENTER, y=20)
     btn_tutorial.place(relx=0.5, rely=0.5, anchor=tk.CENTER, y=50)
     btn_exit.place(relx=0.5, rely=0.5, anchor=tk.CENTER, y=80)
+    print("Kontostand:", kontostand)
     window.mainloop()
 
 def kontocheck():
@@ -238,6 +254,8 @@ def lose():
     else:
         msg.showinfo("Lotto UI", "Danke fürs Spielen!\n\nMade by Mustafa | Informatik 11")
         exit()
+
+
 
 if __name__ == "__main__":
     main()
