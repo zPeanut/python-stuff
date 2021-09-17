@@ -5,7 +5,7 @@ devmode = False
 
 def main():
     global kontostand
-    kontostand = 0
+    kontostand = 150
     print("SPIELE AUTOMAT")
     print("made by Mustafa | if11")
     print()
@@ -145,8 +145,24 @@ def spiel():
             print()
             menu()
 
+    # jackpot
+
+    if (userzahlen == zahlen):
+        kontostand_before_gewinn = kontostand
+        kontostand += 100 * einsatz
+        y = kontostand - kontostand_before_gewinn
+        print("--------------------------------------------")
+        print("J A C K P O T !")
+        print("--------------------------------------------")
+        print("%d -> %d | Du hast %d Münzen gewonnen!" % (kontostand_before_gewinn, kontostand, y))
+        print()
+        print("Deine Zahlen waren", zahlen)
+        print()
+        menu()
+
     # kleiner gewinn
-    if (userzahlen[0] == zahlen[0] and userzahlen[4] == zahlen[4]):
+
+    elif (userzahlen[0] == zahlen[0] and userzahlen[4] == zahlen[4]):
         kontostand_before_gewinn = kontostand
         kontostand += 20 * einsatz
         y = kontostand - kontostand_before_gewinn
@@ -174,23 +190,12 @@ def spiel():
         menu()
 
     # jackpot
-    elif (userzahlen == zahlen):
-        kontostand_before_gewinn = kontostand
-        kontostand += 100 * einsatz
-        y = kontostand - kontostand_before_gewinn
-        print("--------------------------------------------")
-        print("J A C K P O T !")
-        print("--------------------------------------------")
-        print("%d -> %d | Du hast %d Münzen gewonnen!" % (kontostand_before_gewinn, kontostand, y))
-        print()
-        print("Deine Zahlen waren", zahlen)
-        print()
-        menu()
+
 
     # alles andere
     else:
         kontostand_before_loss = kontostand
-        kontostand -= 20 * einsatz
+        kontostand -= 20 + einsatz
         y = kontostand - kontostand_before_loss
         print("--------------------------------------------")
         print("-- V E R L O R E N ! --")
