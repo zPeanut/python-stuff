@@ -1,8 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox as msg
-from tkinter.simpledialog import askstring
-from tkinter.messagebox import showinfo
 import random as r
 
 def main():
@@ -37,11 +35,12 @@ def main():
         if (kontostand < 0):
             msg.showerror("Lotto UI", "Nicht genug Münzen vorhanden!")
             kontostand += 50
+            return
         else:
             top = tk.Toplevel(window)
             top.geometry("{}x{}+{}+{}".format(window_width, window_height, x_coordinate, y_coordinate))
             top.resizable(False, False)
-            msg.showinfo("Lotto UI", "Dein Kontostand:\n%d -> %d" % (kontostand_old, kontostand), parent = top)
+            msg.showinfo("Lotto UI", "Dein Kontostand:\n%d -> %d" % (kontostand_old, kontostand), parent=top)
             zahlen = r.sample(range(1, 6), 5)
 
             # Einsatz ( top 2 )
@@ -82,12 +81,10 @@ def main():
 
         # eigentliches Spiel
         def zahlenraten():
-
                 global einsatz
                 global kontostand
 
                 # Zahlen Raten
-
                 print(einsatz)
                 print(zahlen)
                 msg.showinfo("Lotto UI", "Gebe jetzt deine 5 Zahlen ein!", parent = top)
@@ -129,7 +126,7 @@ def main():
                         msg.showinfo("Lotto UI", "VERLOREN!\n\n%d -> %d | Du hast %d Münzen verloren!\n\nDie Zahlen waren:\n%s\n\nDeine Zahlen waren:\n%s" % (kontostand_before_loss, kontostand, y, userzahlen, zahlen))
                         top.destroy()
                         # loss
-                    if (kontostand <= 0):
+                    if (kontostand < 0):
                         lose()
 
                 title = tk.Label(top, text="Lotto Eingabe", font="Arial 22 bold")
@@ -218,16 +215,9 @@ def main():
     btn_exit.place(relx=0.5, rely=0.5, anchor=tk.CENTER, y=80)
     window.mainloop()
 
-
-
-
 def kontocheck():
     global kontostand
     msg.showinfo("Lotto UI", "Dein Kontostand beträgt zurzeit: \n\n%d Münzen." % kontostand)
-
-
-def quit(root):
-    root.destroy()
 
 class Entry_int(ttk.Entry):
     def __init__(self, master=None, **kwargs):
