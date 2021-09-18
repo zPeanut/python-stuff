@@ -1,7 +1,7 @@
 # made by peanut
 # created on 7th sep 2021
 
-from tkinter import Label, Button, Entry, Tk, PhotoImage, CENTER, LEFT, END, StringVar
+from tkinter import Label, Entry, Tk, CENTER, LEFT, END, StringVar
 from tkinter import filedialog as fd
 from tkinter import messagebox as msg
 import tkinter.ttk as ttk
@@ -13,20 +13,26 @@ import urllib
 import webbrowser
 
 global cwd
-cwd = os.getenv('APPDATA') + "\.minecraft\mods"
+appdata = os.getenv('APPDATA') + "\.minecraft"
+cwd = appdata + "\mods"
+verfolder = appdata + "\\versions\\"
 versionstring = "v1.2 (09.09.2021)"
+
 
 def callback(url):
     webbrowser.open_new(url)
 
+
 def connect(host='http://google.com'):
     try:
-        urllib.request.urlopen(host) #Python 3.x
+        urllib.request.urlopen(host)  # Python 3.x
         return True
     except:
         return False
 
+
 print('connected' if connect() else 'no internet!')
+
 
 def main():
     # check for internet connection, if no: exit program
@@ -34,6 +40,7 @@ def main():
         window()
     else:
         nointernet()
+
 
 def window():
     # setup window
@@ -61,8 +68,9 @@ def window():
     folder_string = Label(window, text="Directory:", font="Arial 10")
     versionchoose_string = Label(window, text="Version:", font="Arial 10")
     version_string = Label(window, text=versionstring, foreground="gray", font="Arial 8")
-    githubview = Label(window, text="view on GitHub", fg = "blue", cursor = "hand2")
-    githubview.bind("<Button-1>", lambda e: callback("https://github.com/zPeanut/Hydrogen/releases/tag/%s" % dropdown.get()))
+    githubview = Label(window, text="view on GitHub", fg="blue", cursor="hand2")
+    githubview.bind("<Button-1>",
+                    lambda e: callback("https://github.com/zPeanut/Hydrogen/releases/tag/%s" % dropdown.get()))
 
     # buttons
 
@@ -88,8 +96,8 @@ def window():
     variable.set(VERSIONS[1])
 
     global dropdown
-    dropdown = ttk.Combobox(window, values = VERSIONS, width = 7)
-    dropdown.configure(state = "readonly")
+    dropdown = ttk.Combobox(window, values=VERSIONS, width=7)
+    dropdown.configure(state="readonly")
     dropdown.current(0)
 
     # setup directory entry
@@ -110,24 +118,30 @@ def window():
     folder_string.place(x=20, y=110)
     btn_path.place(x=355, y=109)
 
-    dropdown.place(x = 84, y = 134)
-    versionchoose_string.place(x = 20, y = 133)
-    githubview.place(x = 150, y = 134)
+    dropdown.place(x=84, y=134)
+    versionchoose_string.place(x=20, y=133)
+    githubview.place(x=150, y=134)
 
     btn_install.place(x=20, y=160)
     btn_cancel.place(x=248, y=160)
 
     window.mainloop()
 
+
 def downloadfile():
     # download hydrogen jar
 
     version = dropdown.get()
 
-    if(version == "1.0" or version == "1.1"):
-        download(("https://github.com/zPeanut/Hydrogen/releases/download/%s/phosphor-%s.jar" % (version, version)), dest_folder=cwd)
+    if any(x.startswith('1.8.9-forge') for x in os.listdir(verfolder)):
+        print("Forge directory exists!")
+        if (version == "1.0" or version == "1.1"):
+            download(("https://github.com/zPeanut/Hydrogen/releases/download/%s/phosphor-%s.jar" % (version, version)),dest_folder=cwd)
+        else:
+            download(("https://github.com/zPeanut/Hydrogen/releases/download/%s/hydrogen-%s.jar" % (version, version)),dest_folder=cwd)
     else:
-        download(("https://github.com/zPeanut/Hydrogen/releases/download/%s/hydrogen-%s.jar" % (version, version)), dest_folder=cwd)
+        print("Forge directory was not found!")
+        noforge()
 
 
 def download(url: str, dest_folder: str):
@@ -158,6 +172,7 @@ def download(url: str, dest_folder: str):
     else:
         duplicate()
 
+
 def directoryopen():
     # open directory window
 
@@ -167,23 +182,33 @@ def directoryopen():
     directory.delete(0, END)
     directory.insert(0, cwd)
 
+
 def success():
     msg.showinfo("Hydrogen Installer", "Successfully Installed!")
 
+
 def duplicate():
     msg.showerror("Hydrogen Installer", "Hydrogen is already installed!")
+
+
+def noforge():
+    msg.showerror("Hydrogen Installer", "Forge is not installed! Please install forge before continuing.")
+
 
 def nointernet():
     root = Tk()
     root.withdraw()
     msg.showerror("Hydrogen Installer", "Could not connect to the Internet!")
 
+
 def error():
     global errormessage
     msg.showerror("Hydrogen Installer", errormessage)
 
+
 def close():
     exit()
+
 
 if __name__ == '__main__':
     main()
