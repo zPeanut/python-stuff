@@ -267,18 +267,6 @@ def lose():
         exit()
 
 
-# stackoverflow, int entry template
-
-class Entry_int(ttk.Entry):
-    def __init__(self, master=None, **kwargs):
-        self.var = tk.StringVar(master)
-        self.var.trace('w', self.validate)
-        ttk.Entry.__init__(self, master, textvariable=self.var, **kwargs)
-        self.get, self.set = self.var.get, self.var.set
-    def validate(self, *args):
-        value = self.get()
-        if not value.isdigit():
-            self.set(''.join(x for x in value if x.isdigit()))
 
 if __name__ == "__main__":
     main()
