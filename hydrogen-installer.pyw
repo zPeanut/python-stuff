@@ -1,27 +1,34 @@
 # made by peanut
 # created on 7th sep 2021
-
-from tkinter import Label, Entry, Tk, CENTER, LEFT, END, StringVar
+import tkinter
+from tkinter import Label, Entry, Tk, CENTER, LEFT, END, StringVar, PhotoImage, Checkbutton, BooleanVar
 from tkinter import filedialog as fd
 from tkinter import messagebox as msg
 import tkinter.ttk as ttk
 
+import json
+from datetime import datetime
 import os
 import requests
 import urllib.request
 import urllib
 import webbrowser
+import base64
+from PIL import Image
+import io
+
+with open("resources/hydrogen20.png", "rb") as image_file:
+    b64data = base64.b64encode(image_file.read())
 
 global cwd
 appdata = os.getenv('APPDATA') + "\.minecraft"
 cwd = appdata + "\mods"
 verfolder = appdata + "\\versions\\"
-versionstring = "v1.2 (09.09.2021)"
+versionstring = "v1.2 (18.09.2021)"
 
 
 def callback(url):
     webbrowser.open_new(url)
-
 
 def connect(host='http://google.com'):
     try:
@@ -48,6 +55,8 @@ def window():
     window = Tk()
     window.resizable(False, False)
     window.title("Hydrogen Installer")
+    img = PhotoImage(data=b64data)
+    window.tk.call('wm', 'iconphoto', window._w, img)
 
     # centre window and set size
 
@@ -69,8 +78,60 @@ def window():
     versionchoose_string = Label(window, text="Version:", font="Arial 10")
     version_string = Label(window, text=versionstring, foreground="gray", font="Arial 8")
     githubview = Label(window, text="view on GitHub", fg="blue", cursor="hand2")
-    githubview.bind("<Button-1>",
-                    lambda e: callback("https://github.com/zPeanut/Hydrogen/releases/tag/%s" % dropdown.get()))
+    githubview.bind("<Button-1>", lambda e: callback("https://github.com/zPeanut/Hydrogen/releases/tag/%s" % dropdown.get()))
+    checkbox = BooleanVar()
+    profile = Checkbutton(window, text="Create Profile", variable=checkbox)
+
+    # download (inside tkinter mainloop)
+
+    def download(url: str, dest_folder: str):
+
+        # get hydrogen jar from web
+
+        if not os.path.exists(dest_folder):
+            os.makedirs(dest_folder)  # create folder if it does not exist
+
+        filename = url.split('/')[-1].replace(" ", "_")  # be careful with file names
+        file_path = os.path.join(dest_folder, filename)
+
+        if not os.path.exists(("%s\%s" % (dest_folder, filename))):
+            r = requests.get(url, stream=True)
+            if r.ok:
+                print("Saving %s to %s." % (filename, os.path.abspath(file_path)))
+                with open(file_path, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=1024 * 8):
+                        if chunk:
+                            f.write(chunk)
+                            f.flush()
+                            os.fsync(f.fileno())
+                success()
+                if checkbox.get():
+                    # create profile by editing launcher_profiles.json in user-specified mc dir
+                    create_profile()
+            else:  # HTTP status code 4XX/5XX
+                global errormessage
+                errormessage = ("Download failed: status code {}\n{}".format(r.status_code, r.text))
+                print(errormessage)
+                error()
+        else:
+            duplicate()
+
+    def downloadfile():
+
+            # download hydrogen jar
+            global version
+            version = dropdown.get()
+
+            if any(x.startswith('1.8.9-forge') for x in os.listdir(verfolder)):
+                print("Forge directory exists!")
+                if (version == "1.0" or version == "1.1"):
+                    download(("https://github.com/zPeanut/Hydrogen/releases/download/%s/phosphor-%s.jar" % (version, version)), dest_folder=cwd)
+                else:
+                    # download file from github
+                    download(("https://github.com/zPeanut/Hydrogen/releases/download/%s/hydrogen-%s.jar" % (version, version)), dest_folder=cwd)
+            else:
+                print("Forge directory was not found!")
+                noforge()
 
     # buttons
 
@@ -85,9 +146,9 @@ def window():
 
     url = "https://raw.githubusercontent.com/zPeanut/Resources/master/versions-hydrogen"
     page = requests.get(url)
-    version = (page.text).strip()
+    versions = (page.text).strip()
 
-    splitstr = version.split("\n")
+    splitstr = versions.split("\n")
 
     for i in splitstr:
         VERSIONS.append(i)
@@ -121,56 +182,12 @@ def window():
     dropdown.place(x=84, y=134)
     versionchoose_string.place(x=20, y=133)
     githubview.place(x=150, y=134)
+    profile.place(x=240, y=133)
 
     btn_install.place(x=20, y=160)
     btn_cancel.place(x=248, y=160)
 
     window.mainloop()
-
-
-def downloadfile():
-    # download hydrogen jar
-
-    version = dropdown.get()
-
-    if any(x.startswith('1.8.9-forge') for x in os.listdir(verfolder)):
-        print("Forge directory exists!")
-        if (version == "1.0" or version == "1.1"):
-            download(("https://github.com/zPeanut/Hydrogen/releases/download/%s/phosphor-%s.jar" % (version, version)),dest_folder=cwd)
-        else:
-            download(("https://github.com/zPeanut/Hydrogen/releases/download/%s/hydrogen-%s.jar" % (version, version)),dest_folder=cwd)
-    else:
-        print("Forge directory was not found!")
-        noforge()
-
-
-def download(url: str, dest_folder: str):
-    # get hydrogen jar from web
-
-    if not os.path.exists(dest_folder):
-        os.makedirs(dest_folder)  # create folder if it does not exist
-
-    filename = url.split('/')[-1].replace(" ", "_")  # be careful with file names
-    file_path = os.path.join(dest_folder, filename)
-
-    if not os.path.exists(("%s\%s" % (dest_folder, filename))):
-        r = requests.get(url, stream=True)
-        if r.ok:
-            print("saving to", os.path.abspath(file_path))
-            with open(file_path, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=1024 * 8):
-                    if chunk:
-                        f.write(chunk)
-                        f.flush()
-                        os.fsync(f.fileno())
-            success()
-        else:  # HTTP status code 4XX/5XX
-            global errormessage
-            errormessage = ("Download failed: status code {}\n{}".format(r.status_code, r.text))
-            print(errormessage)
-            error()
-    else:
-        duplicate()
 
 
 def directoryopen():
@@ -182,6 +199,55 @@ def directoryopen():
     directory.delete(0, END)
     directory.insert(0, cwd)
 
+def create_profile():
+
+    # create new profile in launcher_profiles
+    global cwd
+    filename = "launcher_profiles.json"
+
+    if (cwd.endswith("\mods")):
+        cwd = cwd[:-5]
+
+    filedirectory = ("%s\%s" % (cwd, filename))
+    print("Saving launcher_profiles.json to: %s..." % cwd)
+
+    output_date = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+    time = output_date[:-3] + "Z"
+    print("Created profile at %s" % time)
+
+    versions = os.listdir(cwd + "\\versions")
+
+    for x in versions:
+        if x.startswith("1.8.9-forge"):
+            forgedirectory = x
+            print("Forge directory located at %s." % forgedirectory)
+
+    global version
+
+    entry = {
+        "Hydrogen": {
+            "name": "Hydrogen",
+            "type": "custom",
+            "lastVersionId": forgedirectory,
+            "lastUsed": time,
+            "icon": "data:image/png;base64," + b64data.decode("ascii")
+        }
+    }
+
+    if not os.path.exists(filedirectory):
+        nolauncher()
+    else:
+        with open(filedirectory, "r") as jsonfile:
+            data = json.load(jsonfile)
+
+        data["profiles"].update(entry)
+        msg.showinfo("Hydrogen Installer", "Minecraft Launcher profile has been created!")
+        print("hydrogen20.png has been encoded to Base64")
+        print("Added profile to launcher_profiles.json!")
+
+        os.remove(filedirectory)
+        with open(filedirectory, 'w') as f:
+            json.dump(data, f, indent=4)
 
 def success():
     msg.showinfo("Hydrogen Installer", "Successfully Installed!")
@@ -194,6 +260,8 @@ def duplicate():
 def noforge():
     msg.showerror("Hydrogen Installer", "Forge is not installed! Please install forge before continuing.")
 
+def nolauncher():
+    msg.showerror("Hydrogen Installer", "Minecraft Launcher Profiles were not found.\nIs the Minecraft launcher correctly installed?")
 
 def nointernet():
     root = Tk()
