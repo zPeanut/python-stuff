@@ -1,3 +1,5 @@
+correctlist = [1, 2, 8, 12, 12, 15, 17, 20, 21, 24, 36, 48, 56, 69, 95, 120, 250]
+
 def main():
     liste = [
         17,
@@ -19,29 +21,12 @@ def main():
         48,
     ]
 
-    sort(liste)
-    print(liste)
-
-    sort(liste)
-    print(liste)
-
-    sort(liste)
-    print(liste)
-
-    sort(liste)
-    print(liste)
-
-    sort(liste)
-    print(liste)
-
-    sort(liste)
-    print(liste)
-
-    sort(liste)
-    print(liste)
+    while (liste != correctlist):
+        bsort(liste)
+        print(liste)
 
 
-def sort(list):
+def bsort(list):
     a = len(list)
     for b in range(a - 1):
         if list[b] > list[b + 1]:
